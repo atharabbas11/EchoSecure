@@ -12,7 +12,8 @@ const localIP = import.meta.env.VITE_API_BASE_URL; // Replace with your actual l
 // console.log("VITE_API_BASE_URL:", localIP); // Debugging line
   
 export const axiosInstance = axios.create({
-  baseURL: import.meta.env.MODE === "development" ? `${localIP}` : "/api",
+  // baseURL: import.meta.env.MODE === "development" ? `${localIP}` : "/api",
+  baseURL: import.meta.env.VITE_API_BASE_URL,
   withCredentials: true,
 });
 
