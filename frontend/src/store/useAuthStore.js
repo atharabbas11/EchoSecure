@@ -6,8 +6,10 @@ import { io } from "socket.io-client";
 // Debugging: Log the environment variable
 // console.log("VITE_SOCKET_API_BASE_URL:", import.meta.env.VITE_SOCKET_API_BASE_URL);
 
-const localIP = import.meta.env.VITE_SOCKET_API_BASE_URL; // Replace with your actual local IP
-const BASE_URL = import.meta.env.MODE === "development" ? `${localIP}` : "/";
+// const localIP = import.meta.env.VITE_SOCKET_API_BASE_URL; // Replace with your actual local IP
+// const BASE_URL = import.meta.env.MODE === "development" ? `${localIP}` : "/";
+
+const BASE_URL =  import.meta.env.VITE_SOCKET_API_BASE_URL;
 
 // Debugging: Log the BASE_URL
 // console.log("BASE_URL:", BASE_URL);
