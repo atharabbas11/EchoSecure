@@ -27,8 +27,11 @@ axiosInstance.interceptors.request.use((config) => {
 
   if (csrfToken) {
     config.headers["x-csrf-token"] = csrfToken; // Add CSRF token to headers
+  } else {
+    console.error("CSRF token not found in cookies");
   }
   console.log("Request Headers:", config.headers); // Log headers for debugging
+  console.log("All Cookies:", document.cookie); // Debugging: Log all cookies
   return config;
 });
 
