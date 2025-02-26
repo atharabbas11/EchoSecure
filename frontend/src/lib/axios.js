@@ -28,6 +28,7 @@ axiosInstance.interceptors.request.use((config) => {
   if (csrfToken) {
     config.headers["x-csrf-token"] = csrfToken; // Add CSRF token to headers
   }
+  console.log("Request Headers:", config.headers); // Log headers for debugging
   return config;
 });
 
