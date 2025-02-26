@@ -112,21 +112,112 @@ export const login = async (req, res) => {
 //   }
 // };
 
+// export const verifyOTPAndLogin = async (req, res) => {
+//   const { email, otp } = req.body;
+//   try {
+//     const user = await User.findOne({ email });
+
+//     // let clientIp = req.ip || req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+//     let clientIp = req.headers['x-forwarded-for']?.split(',')[0] || req.ip || req.connection.remoteAddress;
+
+//     // Normalize localhost IP
+//     if (clientIp === '::1' || clientIp === '127.0.0.1') {
+//       clientIp = '127.0.0.1'; // Use IPv4 loopback for consistency
+//     } else {
+//       // Fetch public IP for non-localhost environments
+//       const publicIpResponse = await axios.get('https://api.ipify.org?format=json');
+//       clientIp = publicIpResponse.data.ip;
+//     }
+
+//     // Verify OTP
+//     const isOTPValid = await user.verifyOTP(otp);
+//     if (!isOTPValid || user.otpExpires < Date.now()) {
+//       return res.status(400).json({ message: "Invalid or expired OTP" });
+//     }
+
+//     // Clear OTP after successful verification
+//     user.otp = null;
+//     user.otpExpires = null;
+//     await user.save();
+
+//     if (!user) {
+//       return res.status(400).json({ message: "Invalid email" });
+//     }
+
+//     // Generate tokens and session
+//     const sessionId = crypto.randomBytes(16).toString("hex");
+//     const csrfToken = crypto.randomBytes(32).toString("hex");
+//     const accessToken = generateToken(user._id, "60m", process.env.JWT_SECRET);    
+//     const refreshToken = generateToken(user._id, "7d", process.env.JWT_REFRESH_SECRET);
+
+//     // Store session in the database
+//     await SessionUser.create({
+//       userId: user._id,
+//       sessionId,
+//       csrfToken,
+//       ipAddress: clientIp,
+//     });
+
+//     // Set cookies
+//     res.cookie("accessToken", accessToken, {
+//       httpOnly: true,
+//       secure: true,
+//       sameSite: "None",
+//       maxAge: 60 * 60 * 1000, // 1 hr minutes
+//     });
+//     res.cookie("refreshToken", refreshToken, {
+//       httpOnly: true,
+//       secure: true,
+//       sameSite: "None",
+//       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+//     });
+//     res.cookie("sessionId", sessionId, {
+//       httpOnly: true,
+//       secure: true,
+//       sameSite: "None",
+//       maxAge: 24 * 60 * 60 * 1000, // 24 hours
+//     });
+//     res.cookie("csrfToken", csrfToken, {
+//       httpOnly: true, // CSRF token is HttpOnly
+//       secure: true,
+//       sameSite: "None",
+//       maxAge: 24 * 60 * 60 * 1000, // 24 hours
+//     });
+//     res.cookie("csrfTokenHeader", csrfToken, {
+//       secure: true,
+//       sameSite: "None",
+//       maxAge: 24 * 60 * 60 * 1000, // 24 hours
+//     });
+
+//     // Return user data and CSRF token
+//     res.status(200).json({
+//       _id: user._id,
+//       fullName: user.fullName,
+//       email: user.email,
+//       profilePic: user.profilePic,
+//     });
+//   } catch (error) {
+//     // console.log("Error in verifyOTPAndLogin controller", error.message);
+//     res.status(500).json({ message: "Internal Server Error" });
+//   }
+// };
+
+
 export const verifyOTPAndLogin = async (req, res) => {
   const { email, otp } = req.body;
   try {
     const user = await User.findOne({ email });
 
-    // let clientIp = req.ip || req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    if (!user) {
+      return res.status(400).json({ message: "Invalid email" });
+    }
+
+    // Get client IP address
     let clientIp = req.headers['x-forwarded-for']?.split(',')[0] || req.ip || req.connection.remoteAddress;
 
     // Normalize localhost IP
     if (clientIp === '::1' || clientIp === '127.0.0.1') {
       clientIp = '127.0.0.1'; // Use IPv4 loopback for consistency
-    } else {
-      // Fetch public IP for non-localhost environments
-      const publicIpResponse = await axios.get('https://api.ipify.org?format=json');
-      clientIp = publicIpResponse.data.ip;
     }
 
     // Verify OTP
@@ -139,10 +230,7 @@ export const verifyOTPAndLogin = async (req, res) => {
     user.otp = null;
     user.otpExpires = null;
     await user.save();
-
-    if (!user) {
-      return res.status(400).json({ message: "Invalid email" });
-    }
+    console.log("User OTP cleared and saved:", user);
 
     // Generate tokens and session
     const sessionId = crypto.randomBytes(16).toString("hex");
@@ -151,12 +239,13 @@ export const verifyOTPAndLogin = async (req, res) => {
     const refreshToken = generateToken(user._id, "7d", process.env.JWT_REFRESH_SECRET);
 
     // Store session in the database
-    await SessionUser.create({
+    const session = await SessionUser.create({
       userId: user._id,
       sessionId,
       csrfToken,
       ipAddress: clientIp,
     });
+    console.log("Session created:", session);
 
     // Set cookies
     res.cookie("accessToken", accessToken, {
@@ -197,8 +286,8 @@ export const verifyOTPAndLogin = async (req, res) => {
       profilePic: user.profilePic,
     });
   } catch (error) {
-    // console.log("Error in verifyOTPAndLogin controller", error.message);
-    res.status(500).json({ message: "Internal Server Error" });
+    console.error("Error in verifyOTPAndLogin controller:", error.message);
+    res.status(500).json({ message: "Internal Server Error", error: error.message });
   }
 };
 
