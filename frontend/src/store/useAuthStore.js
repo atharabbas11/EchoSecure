@@ -70,6 +70,7 @@ export const useAuthStore = create((set, get) => ({
   verifyOTP: async (data) => {
     try {
       const res = await axiosInstance.post("/auth/verify-otp", data);
+      await new Promise((resolve) => setTimeout(resolve, 100)); // Wait for cookies to be set
       set({ authUser: res.data });
       // Attach CSRF token to axios headers
       axiosInstance.defaults.headers.common["x-csrf-token"] = res.data.csrfToken;
@@ -99,6 +100,7 @@ export const useAuthStore = create((set, get) => ({
     set({ isLoggingIn: true });
     try {
       const res = await axiosInstance.post("/auth/login", data);
+      await new Promise((resolve) => setTimeout(resolve, 100)); // Wait for cookies to be set
       return { success: true, message: res.data.message }; // Return success status
     } catch (error) {
       toast.error(error.response.data.message);
