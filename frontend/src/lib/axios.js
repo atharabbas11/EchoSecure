@@ -20,6 +20,8 @@ export const axiosInstance = axios.create({
 
 
 axiosInstance.interceptors.request.use((config) => {
+  console.log("All Cookies:", document.cookie); // Debugging: Log all cookies
+  
   const csrfToken = document.cookie
     .split("; ")
     .find((row) => row.startsWith("csrfTokenHeader="))
@@ -31,7 +33,6 @@ axiosInstance.interceptors.request.use((config) => {
     console.error("CSRF token not found in cookies");
   }
   console.log("Request Headers:", config.headers); // Log headers for debugging
-  console.log("All Cookies:", document.cookie); // Debugging: Log all cookies
   return config;
 });
 
