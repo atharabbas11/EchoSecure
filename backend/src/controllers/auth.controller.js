@@ -272,17 +272,10 @@ export const verifyOTPAndLogin = async (req, res) => {
       sameSite: "None",
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
     });
-    // res.cookie("csrfTokenHeader", csrfToken, {
-    //   secure: true,
-    //   sameSite: "None",
-    //   maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    // });
-
     res.cookie("csrfTokenHeader", csrfToken, {
       httpOnly: false,
       secure: true,
       sameSite: "None",
-      domain: ".onrender.com", // Set domain to parent domain
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
     });
 
