@@ -117,10 +117,6 @@ export const verifyOTPAndLogin = async (req, res) => {
   try {
     const user = await User.findOne({ email });
 
-    if (!user) {
-      return res.status(400).json({ message: "Invalid email" });
-    }
-
     let clientIp = req.ip || req.headers['x-forwarded-for'] || req.connection.remoteAddress;
 
     // Normalize localhost IP
@@ -142,6 +138,10 @@ export const verifyOTPAndLogin = async (req, res) => {
     user.otp = null;
     user.otpExpires = null;
     await user.save();
+
+    if (!user) {
+      return res.status(400).json({ message: "Invalid email" });
+    }
 
     // Generate tokens and session
     const sessionId = crypto.randomBytes(16).toString("hex");
@@ -172,7 +172,7 @@ export const verifyOTPAndLogin = async (req, res) => {
     });
     res.cookie("sessionId", sessionId, {
       httpOnly: true,
-      secure: process.env.CLIENT_URL === "production",
+      secure: true,
       sameSite: "None",
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
     });
