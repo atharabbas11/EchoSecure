@@ -117,7 +117,8 @@ export const verifyOTPAndLogin = async (req, res) => {
   try {
     const user = await User.findOne({ email });
 
-    let clientIp = req.ip || req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    // let clientIp = req.ip || req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    let clientIp = req.headers['x-forwarded-for']?.split(',')[0] || req.ip || req.connection.remoteAddress;
 
     // Normalize localhost IP
     if (clientIp === '::1' || clientIp === '127.0.0.1') {
