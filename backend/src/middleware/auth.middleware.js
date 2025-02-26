@@ -113,15 +113,16 @@ export const validateCSRFToken = async (req, res, next) => {
   try {
     const csrfToken = req.headers['x-csrf-token'];
     const sessionId = req.cookies.sessionId;
-
+    
+    console.log("Received CSRF Token:", csrfToken); // Debugging
+    console.log("Received Session ID:", sessionId); // Debugging
+    
     if (!csrfToken || !sessionId) {
       return res.status(401).json({ message: 'Unauthorized - No CSRF token or session provided' });
     }
 
     // Verify CSRF token
     const session = await SessionUser.findOne({ sessionId, csrfToken });
-    
-    // const session = await SessionUser.findOne({ sessionId }).populate("userId");
     if (!session) {
       return res.status(401).json({ message: 'Unauthorized - Invalid CSRF token' });
     }
